@@ -7,8 +7,8 @@ function TabIcon({ focused, icon, title }: any) {
   if (focused) {
     return (
       <View className="bg-navy flex flex-col items-center justify-center w-full flex-1 min-w-[80px] min-h-14 mt-4 rounded-2xl overflow-hidden">
-        <Image source={icon} tintColor="#F5C518" className="size-5 mb-1" />
-        <Text className="text-gold-light text-xs font-semibold">{title}</Text>
+        <Image source={icon} tintColor="#FFE57F" className="size-5 mb-1" />
+        <Text className="text-[#F5C518] text-xs font-semibold">{title}</Text>
       </View>
     );
   }

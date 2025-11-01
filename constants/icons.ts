@@ -7,6 +7,7 @@ import person from "@/assets/icons/person.png";
 import play from "@/assets/icons/play.png";
 import save from "@/assets/icons/save.png";
 import search from "@/assets/icons/search.png";
+import sparkles from "@/assets/icons/sparkles.png";
 import star from "@/assets/icons/star.png";
 import timer from "@/assets/icons/timer.png";
 
@@ -22,4 +23,5 @@ export const icons = {
   timer,
   calendar,
   left,
+  sparkles
 };
