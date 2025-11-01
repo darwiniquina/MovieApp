@@ -1,4 +1,6 @@
-import axios from "axios";
+import MovieCardDisplay from "@/components/MovieCardDisplay";
+import movieFetch from "@/services/movieFetch";
+import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -20,27 +22,15 @@ export default function Index() {
     release_date?: string;
     poster_path: string;
   }
+
   const [featured, setFeatured] = useState<Movie[]>([]);
   const [trending, setTrending] = useState<Movie[]>([]);
   const [genres, setGenres] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState<"day" | "week">("day");
+  const router = useRouter();
 
   const imgBase = "https://image.tmdb.org/t/p/w500";
-
-  const TMDB_HEADERS = {
-    accept: "application/json",
-    Authorization: `Bearer ${process.env.EXPO_PUBLIC_TMDB_API_KEY}`,
-  };
-
-  const TMDB_BASE = "https://api.themoviedb.org/3";
-
-  const fetchFromTMDB = async (endpoint: string) => {
-    const url = `${TMDB_BASE}${endpoint}`;
-    const res = await axios.get(url, { headers: TMDB_HEADERS });
-
-    return res.data.results;
-  };
 
   const genreMap = useMemo(() => {
     const map: Record<number, string> = {};
@@ -58,18 +48,14 @@ export default function Index() {
     try {
       const [featuredResults, trendingResults, genresResults] =
         await Promise.all([
-          fetchFromTMDB(`/discover/movie?sort_by=popularity.desc`),
-          fetchFromTMDB(`/trending/movie/${selectedFilter}`),
-          axios
-            .get(`${TMDB_BASE}/genre/movie/list?language=en`, {
-              headers: TMDB_HEADERS,
-            })
-            .then((res) => res.data.genres),
+          movieFetch(`/discover/movie?sort_by=popularity.desc`),
+          movieFetch(`/trending/movie/${selectedFilter}`),
+          movieFetch(`/genre/movie/list?language=en`),
         ]);
 
-      setFeatured(featuredResults.slice(0, 3));
-      setTrending(trendingResults.slice(0, 8));
-      setGenres(genresResults);
+      setFeatured(featuredResults.results.slice(0, 3));
+      setTrending(trendingResults.results.slice(0, 8));
+      setGenres(genresResults.genres);
     } catch (err) {
       console.error("TMDB fetch error:", err);
     } finally {
@@ -94,11 +80,9 @@ export default function Index() {
   return (
     <ScrollView
       className="flex-1 bg-[#0F0D23] p-4 "
-      contentContainerStyle={{ paddingBottom: 100 }}
+      contentContainerStyle={{ paddingBottom: 100, paddingTop: 40 }}
       showsVerticalScrollIndicator={false}
     >
-      <Text className="text-white text-3xl font-bold mb-3">Discover</Text>
-
       {loading ? (
         <View className="flex-1 justify-center items-center py-20">
           <ActivityIndicator size="large" color="#ffffff" />
@@ -110,14 +94,21 @@ export default function Index() {
             Featured Picks
           </Text>
 
-          {/* Featured Picks */}
           <FlatList
             data={featured}
             scrollEnabled={false}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ marginBottom: 16 }}
+            contentContainerStyle={{ gap: 10 }}
             renderItem={({ item: movie }) => (
-              <View className=" h-36 rounded-2xl overflow-hidden relative">
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/movie/[id]",
+                    params: { id: movie.id.toString() },
+                  })
+                }
+                className="h-36 rounded-2xl overflow-hidden relative"
+              >
                 <Image
                   source={{ uri: `${imgBase}${movie.backdrop_path}` }}
                   className="w-full h-full"
@@ -125,19 +116,6 @@ export default function Index() {
                 />
                 <View className="absolute inset-0 bg-black/40 justify-end p-3">
                   <GenreDisplay genreIds={movie.genre_ids} />
-                  {/* <View className="flex-row flex-wrap gap-1">
-                    {movie.genre_ids.map((id) => (
-                      <View
-                        key={id}
-                        className="bg-blue-700/60 px-2 py-1 rounded-full"
-                      >
-                        <Text className="text-white text-xs">
-                          {genreMap[id]}
-                        </Text>
-                      </View>
-                    ))}
-                  </View> */}
-
                   <Text className="text-white text-lg font-semibold">
                     {movie.title}
                   </Text>
@@ -147,12 +125,12 @@ export default function Index() {
                     {movie.release_date?.slice(0, 4)}
                   </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
           />
 
           {/* Option part */}
-          <View className="flex-row items-center justify-between mt-2 mb-4">
+          <View className="flex-row items-center justify-between mt-4 mb-4">
             <Text className="text-white text-xl font-semibold">Trending</Text>
 
             <View className="flex-row gap-2">
@@ -198,29 +176,9 @@ export default function Index() {
               justifyContent: "space-between",
               marginBottom: 5,
             }}
-            contentContainerStyle={{}}
+            contentContainerStyle={{ gap: 10 }}
             renderItem={({ item: movie }) => (
-              <View className="w-[48%] rounded-xl overflow-hidden bg-gray-800">
-                <Image
-                  source={{ uri: `${imgBase}${movie.poster_path}` }}
-                  className="w-full h-52"
-                  resizeMode="cover"
-                />
-                <View className="p-2 flex justify-end gap-2">
-                  <GenreDisplay genreIds={movie.genre_ids} />
-
-                  <Text
-                    numberOfLines={1}
-                    className="text-white text-base font-medium"
-                  >
-                    {movie.title}
-                  </Text>
-                  <Text className="text-gray-400 text-xs">
-                    {movie.release_date?.slice(0, 4)} • ⭐{" "}
-                    {movie.vote_average.toFixed(1)}
-                  </Text>
-                </View>
-              </View>
+              <MovieCardDisplay movie={movie} genreMap={genreMap} />
             )}
           />
         </>
