@@ -10,9 +10,10 @@ interface MovieCardDisplayProps {
     poster_path: string;
     release_date?: string;
     vote_average: number;
-    genre_ids: number[];
+    genre_ids?: number[];
+    genres?: Array<{ id: number; name: string }>;
   };
-  genreMap: Record<number, string>;
+  genreMap: Record<number, string> | null;
 }
 
 export default function MovieCardDisplay({
@@ -39,16 +40,29 @@ export default function MovieCardDisplay({
 
       <View className="p-2 gap-2">
         <View className="flex-row flex-wrap gap-1">
-          {movie.genre_ids.map((id) => (
-            <View
-              key={id}
-              className="bg-[#F5C518]/20 rounded-full px-2 py-[2px]"
-            >
-              <Text className="text-[#F5C518] text-xs font-medium">
-                {genreMap[id]}
-              </Text>
-            </View>
-          ))}
+          {/* Use details genres if available, the save contains the genres already so need to map that thang */}
+          {movie.genres && movie.genres.length > 0
+            ? movie.genres.map((g) => (
+                <View
+                  key={g.id}
+                  className="bg-[#F5C518]/20 rounded-full px-2 py-[2px]"
+                >
+                  <Text className="text-[#F5C518] text-xs font-medium">
+                    {g.name}
+                  </Text>
+                </View>
+              ))
+            : // Usual setup in index and view page discover on which we map the ids to the genreMap
+              movie.genre_ids?.map((id) => (
+                <View
+                  key={id}
+                  className="bg-[#F5C518]/20 rounded-full px-2 py-[2px]"
+                >
+                  <Text className="text-[#F5C518] text-xs font-medium">
+                    {genreMap?.[id] ?? "Unknown"}
+                  </Text>
+                </View>
+              ))}
         </View>
 
         <Text

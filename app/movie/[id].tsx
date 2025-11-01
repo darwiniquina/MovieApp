@@ -1,6 +1,7 @@
 import MovieCardDisplay from "@/components/MovieCardDisplay";
 import { icons } from "@/constants/icons";
 import movieFetch from "@/services/movieFetch";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -25,7 +26,7 @@ export default function MovieDetails() {
     vote_average: number;
     release_date?: string;
     poster_path: string;
-    genres: Array<any>;
+    genres: Array<{ id: number; name: string }>;
   }
 
   interface Credit {
@@ -36,14 +37,14 @@ export default function MovieDetails() {
   }
 
   const imgBase = "https://image.tmdb.org/t/p/w500";
-
   const { id } = useLocalSearchParams();
 
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState<MovieDetails | null>(null);
   const [credits, setCredits] = useState<Credit[]>([]);
-  const [similar, setSimilar] = useState<any>([]);
+  const [similar, setSimilar] = useState<any[]>([]);
   const [genres, setGenres] = useState<any[]>([]);
+  const [isSaved, setIsSaved] = useState(false);
 
   const fetchMovies = async () => {
     setLoading(true);
@@ -61,6 +62,8 @@ export default function MovieDetails() {
       setCredits(creditsResult.cast);
       setSimilar(similarResult.results.slice(0, 6));
       setGenres(genreResult.genres);
+
+      await checkIfSaved(detailsResult.id);
     } catch (err) {
       console.error("TMDB fetch error:", err);
     } finally {
@@ -68,10 +71,45 @@ export default function MovieDetails() {
     }
   };
 
+  const checkIfSaved = async (movieId: number) => {
+    try {
+      const stored = await AsyncStorage.getItem("savedMovies");
+      const savedMovies = stored ? JSON.parse(stored) : [];
+      setIsSaved(savedMovies.some((m: any) => m.id === movieId));
+    } catch (error) {
+      console.error("Failed to check saved movie", error);
+    }
+  };
+
+  const toggleSaveMovie = async () => {
+    if (!details) return;
+
+    try {
+      const stored = await AsyncStorage.getItem("savedMovies");
+      const savedMovies = stored ? JSON.parse(stored) : [];
+
+      const alreadySaved = savedMovies.some((m: any) => m.id === details.id);
+      let updatedMovies;
+
+      if (alreadySaved) {
+        updatedMovies = savedMovies.filter((m: any) => m.id !== details.id);
+        setIsSaved(false);
+        console.log("Movie removed!");
+      } else {
+        updatedMovies = [...savedMovies, details];
+        setIsSaved(true);
+        console.log("Movie saved!");
+      }
+
+      await AsyncStorage.setItem("savedMovies", JSON.stringify(updatedMovies));
+    } catch (error) {
+      console.error("Failed to toggle save", error);
+    }
+  };
+
   useEffect(() => {
-    console.log("id", id);
     fetchMovies();
-  }, []);
+  }, [id]);
 
   function HeaderMetaData({ icon, text }: { icon: any; text: any }) {
     return (
@@ -84,7 +122,7 @@ export default function MovieDetails() {
 
   const genreMap = useMemo(() => {
     const map: Record<number, string> = {};
-    genres.forEach((g) => (map[g.id] = g.name));
+    genres.forEach((g: any) => (map[g.id] = g.name));
     return map;
   }, [genres]);
 
@@ -101,6 +139,7 @@ export default function MovieDetails() {
           contentContainerStyle={{ paddingBottom: 10, gap: 10 }}
           showsVerticalScrollIndicator={false}
         >
+          {/* HEADER IMAGE + BUTTONS */}
           <View className="h-96 overflow-hidden relative ">
             <Image
               source={{ uri: `${imgBase}${details?.backdrop_path}` }}
@@ -111,7 +150,7 @@ export default function MovieDetails() {
             <View className="p-4 absolute inset-0 bg-black/40 justify-end gap-2">
               {/* BACK BUTTON */}
               <TouchableOpacity
-                onPress={() => router.push("/")}
+                onPress={() => router.back()}
                 activeOpacity={0.8}
                 className="absolute top-4 left-4 bg-black/60 backdrop-blur-md rounded-full w-10 h-10 flex items-center justify-center border border-white/10 shadow-lg"
               >
@@ -122,10 +161,24 @@ export default function MovieDetails() {
                 />
               </TouchableOpacity>
 
+              {/* SAVE / UNSAVE BUTTON */}
+              <TouchableOpacity
+                onPress={toggleSaveMovie}
+                activeOpacity={0.8}
+                className="absolute top-4 right-4 bg-black/60 backdrop-blur-md rounded-full w-10 h-10 flex items-center justify-center border border-white/10 shadow-lg"
+              >
+                <Image
+                  source={icons.save}
+                  tintColor={isSaved ? "#F5C518" : "white"}
+                  className="w-5 h-5"
+                />
+              </TouchableOpacity>
+
               <Text className=" text-white text-4xl font-bold">
                 {details?.title}
               </Text>
 
+              {/* GENRES */}
               <View className="flex-row flex-wrap gap-1">
                 {details?.genres.map((g) => (
                   <View
@@ -139,6 +192,7 @@ export default function MovieDetails() {
                 ))}
               </View>
 
+              {/* RUNTIME / RATING / YEAR */}
               <View className="flex flex-row gap-2">
                 <HeaderMetaData
                   icon={icons.star}
@@ -153,6 +207,7 @@ export default function MovieDetails() {
             </View>
           </View>
 
+          {/* OVERVIEW */}
           <View className="flex gap-4 mx-4">
             <Text className="text-white text-xl font-semibold">Overview</Text>
             <Text className="text-white text-md leading-6">
@@ -160,12 +215,12 @@ export default function MovieDetails() {
             </Text>
           </View>
 
+          {/* CAST */}
           <View className="flex gap-4 mx-4">
             <Text className="text-white text-xl font-semibold">Cast</Text>
             <FlatList
               horizontal
               data={credits}
-              className=""
               contentContainerStyle={{ gap: 26 }}
               keyExtractor={(item) => item.id.toString()}
               showsHorizontalScrollIndicator={false}
@@ -185,6 +240,7 @@ export default function MovieDetails() {
             />
           </View>
 
+          {/* SIMILAR MOVIES */}
           <View className="flex gap-4 mx-4">
             <Text className="text-white text-xl font-semibold">Similar</Text>
             <FlatList
@@ -196,7 +252,6 @@ export default function MovieDetails() {
               columnWrapperStyle={{
                 justifyContent: "space-between",
               }}
-              contentContainerStyle={{}}
               renderItem={({ item: movie }) => (
                 <MovieCardDisplay movie={movie} genreMap={genreMap} />
               )}
