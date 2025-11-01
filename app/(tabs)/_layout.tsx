@@ -74,12 +74,16 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="profile"
+        name="suggestion"
         options={{
-          title: "Profile",
+          title: "Suggestion",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon={icons.person} title="Profile" />
+            <TabIcon
+              focused={focused}
+              icon={icons.sparkles}
+              title="Suggestion"
+            />
           ),
         }}
       />
