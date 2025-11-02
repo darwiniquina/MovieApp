@@ -1,50 +1,54 @@
-# Welcome to your Expo app 👋
+# Movie App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A sleek and intelligent movie discovery app powered by **TMDB** (The Movie Database) and **AssemblyAI**.  
+Type what you want to watch — whether it’s “a mind-bending sci-fi about dreams” or “movies like Parasite” —  
+and the app intelligently recommends films, complete with posters, genres, and details.
 
-## Get started
+---
 
-1. Install dependencies
+Sample Screenshots
 
-   ```bash
-   npm install
-   ```
+![First Screenhots](https://github.com/user-attachments/assets/ca010333-17c3-4515-ba2a-fd0aa9ee4198)
 
-2. Start the app
+![Second Screenhots](https://github.com/user-attachments/assets/ae4cc6ed-f11d-4964-a71d-c26b51f62c3c)
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## ✨ Overview
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+This project explores design, AI, and clean mobile development with **React Native** and **Expo**.  
+It merges two APIs — **AssemblyAI** for natural language understanding and **TMDB** for movie data —  
+to create a smart and seamless browsing experience.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## 🧠 How the AI Movie Generation Works
 
-When you're ready, run:
+The AI movie generation is a side module — you can still browse movies normally using the TMDB API.  
+When you describe what you want to watch, the app sends your text to **AssemblyAI**,  
+which interprets your intent and returns a list of possible movie titles.  
+Those titles are then fetched from **TMDB**, where you get full movie details like posters, ratings, and genres.
 
-```bash
-npm run reset-project
-```
+It’s a creative fusion of **AI-generated reasoning** and **real-world movie data**.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## 🖼️ Features
 
-To learn more about developing your project with Expo, look at the following resources:
+- AI-powered and keyword-based search modes  
+- Natural language recommendations through AssemblyAI  
+- Real-time data from The Movie Database (TMDB)  
+- Local favorites saved with AsyncStorage  
+- Clean and adaptive React Native UI with Tailwind styling  
+- Pull-to-refresh and smooth scrolling experience  
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## 🧩 Tech Stack
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- React Native Expo  
+- TypeScript  
+- NativeWind (Tailwind CSS for React Native)  
+- TMDB API  
+- AssemblyAI Chat API  
+- AsyncStorage for local persistence  
