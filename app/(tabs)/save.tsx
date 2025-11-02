@@ -1,17 +1,8 @@
 import MovieCardDisplay from "@/components/MovieCardDisplay";
+import { Movie } from "@/interfaces/interfaces";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
-
-interface Movie {
-  id: number;
-  title: string;
-  backdrop_path: string;
-  genre_ids: number[];
-  vote_average: number;
-  release_date?: string;
-  poster_path: string;
-}
 
 const Save = () => {
   const [movies, setMovies] = useState<Movie[] | null>([]);

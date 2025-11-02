@@ -1,4 +1,5 @@
 import MovieCardDisplay from "@/components/MovieCardDisplay";
+import { Movie } from "@/interfaces/interfaces";
 import movieFetch from "@/services/movieFetch";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
@@ -13,16 +14,6 @@ import {
 } from "react-native";
 
 export default function Index() {
-  interface Movie {
-    id: number;
-    title: string;
-    backdrop_path: string;
-    genre_ids: number[];
-    vote_average: number;
-    release_date?: string;
-    poster_path: string;
-  }
-
   const [featured, setFeatured] = useState<Movie[]>([]);
   const [trending, setTrending] = useState<Movie[]>([]);
   const [genres, setGenres] = useState<any[]>([]);

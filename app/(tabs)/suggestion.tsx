@@ -1,4 +1,5 @@
 import { icons } from "@/constants/icons";
+import { Movie } from "@/interfaces/interfaces";
 import movieFetch from "@/services/movieFetch";
 import axios from "axios";
 import { useRouter } from "expo-router";
@@ -13,17 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-interface Movie {
-  id: number;
-  title: string;
-  backdrop_path: string;
-  genre_ids: number[];
-  vote_average: number;
-  release_date?: string;
-  poster_path: string;
-  explanation?: string;
-}
 
 const imgBase = "https://image.tmdb.org/t/p/w500";
 
@@ -191,7 +181,7 @@ const Suggestion = () => {
 
   const renderInput = () => {
     return (
-      <View className=" my-4 flex-row items-center bg-white rounded-md px-4 py-1 shadow">
+      <View className="rounded-2xl mx-4 my-4 flex-row items-center bg-white  px-4 py-1 shadow">
         <Image
           source={icons.sparkles}
           className="w-5 h-5 mr-2"
@@ -204,7 +194,9 @@ const Suggestion = () => {
           value={aiQuery}
           onChangeText={setAIQuery}
           placeholderTextColor="#A8B5DB"
-          className="flex-1 text-base text-black"
+          className="flex-1 text-base text-black h-16"
+          multiline
+          numberOfLines={4}
         />
       </View>
     );
@@ -212,21 +204,36 @@ const Suggestion = () => {
 
   return (
     <ScrollView
-      className="flex bg-[#0F0D23] p-6"
-      contentContainerStyle={{ paddingBottom: 50, paddingTop: 60 }}
+      className="flex-1 bg-[#0F0D23]"
+      contentContainerStyle={{ paddingTop: 60, paddingBottom: 70 }}
       showsVerticalScrollIndicator={false}
     >
       {renderInput()}
 
+      {!results.length && !loading && (
+        <View className="flex-row items-start mx-6 mb-5">
+          <Image
+            source={icons.lightbulb}
+            className="w-5 h-5 mt-0.5 mr-2"
+            resizeMode="contain"
+            tintColor="#F5C518"
+          />
+          <Text className="text-[#C5C7D0] text-sm leading-5 flex-1">
+            Try something like: “I want a slow-burn mystery set in space with
+            emotional depth.”
+          </Text>
+        </View>
+      )}
+
       {loading && (
-        <ActivityIndicator size="large" color="#0000ff" className="my-4" />
+        <ActivityIndicator size="large" color="#F5C518" className="my-6" />
       )}
 
       <FlatList
         data={results}
         scrollEnabled={false}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ gap: 10 }}
+        contentContainerStyle={{ gap: 12, paddingHorizontal: 16 }}
         renderItem={({ item: movie }) => (
           <TouchableOpacity
             onPress={() =>
@@ -235,30 +242,27 @@ const Suggestion = () => {
                 params: { id: movie.id.toString() },
               })
             }
-            className="min-h-36 rounded-2xl overflow-hidden relative"
+            className="rounded-2xl overflow-hidden relative"
           >
             <Image
               source={{ uri: `${imgBase}${movie.backdrop_path}` }}
-              className="w-full h-32"
+              className="w-full h-40"
               resizeMode="cover"
             />
-            <View className="absolute inset-0 bg-black/40 justify-end p-3">
+            <View className="absolute inset-0 bg-black/50 justify-end p-3">
               <GenreDisplay genreIds={movie.genre_ids} />
-
-              <Text className="text-white text-lg font-semibold">
+              <Text className="text-white text-lg font-semibold mt-1">
                 {movie.title}
               </Text>
-
               {movie.explanation ? (
                 <Text
-                  className="text-gray-200 text-xs italic mb-1"
+                  className="text-gray-200 text-xs italic mt-0.5"
                   numberOfLines={3}
                 >
                   {movie.explanation}
                 </Text>
               ) : null}
-
-              <Text className="text-gray-300 text-xs">
+              <Text className="text-gray-300 text-xs mt-1">
                 ⭐ {movie.vote_average.toFixed(1)} •{" "}
                 {movie.release_date?.slice(0, 4)}
               </Text>

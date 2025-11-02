@@ -1,6 +1,7 @@
 import arrow from "@/assets/icons/arrow.png";
 import calendar from "@/assets/icons/calendar.png";
 import home from "@/assets/icons/home.png";
+import lightbulb from "@/assets/icons/lightbulb.png";
 import logo from "@/assets/icons/logo.png";
 import left from "@/assets/icons/move-left.png";
 import person from "@/assets/icons/person.png";
@@ -23,5 +24,6 @@ export const icons = {
   timer,
   calendar,
   left,
-  sparkles
+  sparkles,
+  lightbulb
 };

@@ -1,5 +1,6 @@
 import MovieCardDisplay from "@/components/MovieCardDisplay";
 import { icons } from "@/constants/icons";
+import { Credit, Movie } from "@/interfaces/interfaces";
 import movieFetch from "@/services/movieFetch";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -17,30 +18,11 @@ import {
 export default function MovieDetails() {
   const router = useRouter();
 
-  interface MovieDetails {
-    id: number;
-    title: string;
-    runtime: number;
-    overview: string;
-    backdrop_path: string;
-    vote_average: number;
-    release_date?: string;
-    poster_path: string;
-    genres: Array<{ id: number; name: string }>;
-  }
-
-  interface Credit {
-    id: number;
-    name: string;
-    character: string;
-    profile_path: string;
-  }
-
   const imgBase = "https://image.tmdb.org/t/p/w500";
   const { id } = useLocalSearchParams();
 
   const [loading, setLoading] = useState(true);
-  const [details, setDetails] = useState<MovieDetails | null>(null);
+  const [details, setDetails] = useState<Movie | null>(null);
   const [credits, setCredits] = useState<Credit[]>([]);
   const [similar, setSimilar] = useState<any[]>([]);
   const [genres, setGenres] = useState<any[]>([]);

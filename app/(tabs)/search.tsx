@@ -1,5 +1,6 @@
 import MovieCardDisplay from "@/components/MovieCardDisplay";
 import { icons } from "@/constants/icons";
+import { Movie } from "@/interfaces/interfaces";
 import aiFetch from "@/services/aiFetch";
 import movieFetch from "@/services/movieFetch";
 import React, { useEffect, useMemo, useState } from "react";
@@ -13,16 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-interface Movie {
-  id: number;
-  title: string;
-  backdrop_path: string;
-  genre_ids: number[];
-  vote_average: number;
-  release_date?: string;
-  poster_path: string;
-}
 
 const Search = () => {
   const [mode, setMode] = useState<"keyword" | "ai">("keyword");
@@ -53,6 +44,7 @@ const Search = () => {
       setResults([]);
       return;
     }
+
     setLoading(true);
     try {
       const data = await movieFetch(
@@ -74,31 +66,7 @@ const Search = () => {
 
     setLoading(true);
     try {
-      const limit = 4;
-
-      const messages = [
-        {
-          role: "system",
-          content: `
-          You are a helpful assistant that returns only movie titles in JSON format.
-          Remove any years, subtitles, or extra text — keep only the clean, main title.
-          Do not include descriptions or metadata. 
-          Return an array of distinct movie titles that best match the user's description.
-          
-          Example:
-          Input: "funny animated movies about animals"
-          Output: ["Zootopia", "Madagascar", "The Secret Life of Pets", "Sing", "Kung Fu Panda"]
-        `,
-        },
-        {
-          role: "user",
-          content: `List up to ${limit} movies that match this description: "${searchQuery}". 
-Return a JSON array of clean titles only, like:
-["Title 1", "Title 2", "Title 3"]`,
-        },
-      ];
-
-      const aiTitles = await aiFetch(messages); // e.g. ["Shrek", "Zootopia", "Madagascar"]
+      const aiTitles = await aiFetch(searchQuery); // e.g. ["Shrek", "Zootopia", "Madagascar"]
 
       // Sequentially or in parallel — we will do parallel for faster results
       const moviePromises = aiTitles.map(async (title) => {
@@ -226,7 +194,9 @@ Return a JSON array of clean titles only, like:
             value={aiQuery}
             onChangeText={setAIQuery}
             placeholderTextColor="#A8B5DB"
-            className="flex-1 text-base text-black"
+            className="flex-1 text-base text-black h-16"
+            multiline
+            numberOfLines={4}
           />
         </View>
       );
